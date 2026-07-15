@@ -311,7 +311,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   gap: 25px;
-  align-items: end;
+  align-items: flex-end;
   border-bottom: 1px solid var(--line);
   padding-bottom: 27px;
 }
