@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { Nav } from "@/components/Nav";
 import { categories } from "@/lib/schema";
 const demo =
-  "I'm earning ₹79,000 per month in a stable software engineering job. I have significant monthly financial commitments and have received an offer from an early-stage startup with a 40% salary increase. The startup offers better learning opportunities, but I'm worried about job stability. Should I accept the offer?";
+  "I'm earning ₹60,000 per month in a stable software engineering job. I have significant monthly financial commitments and have received an offer from an early-stage startup with a 40% salary increase. The startup offers better learning opportunities, but I'm worried about job stability. Should I accept the offer?";
 export default function Analyze() {
   return (
     <Suspense fallback={<AnalyzeLoading />}>
