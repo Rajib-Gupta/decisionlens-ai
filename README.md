@@ -2,6 +2,8 @@
 
 DecisionLens AI is a decision-intelligence web app that turns an important choice into a structured decision brief, then lets you manage the full decision lifecycle in a workspace.
 
+## Check out the live demo at [decisionlens.ai](https://trydecisionlens-ai.vercel.app/).
+
 ## What It Does
 
 - Captures a decision with category, goals, constraints, concerns, and context.
