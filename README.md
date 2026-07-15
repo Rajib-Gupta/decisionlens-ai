@@ -40,4 +40,8 @@ Most AI decision tools are chat prompts. DecisionLens makes the reasoning inspec
 
 ## Screenshots
 
-_Add product screenshots here before submission._
+<img width="1907" height="870" alt="image" src="https://github.com/user-attachments/assets/6c05b501-4ff9-415b-b07d-5d78e05b795e" />
+<img width="1905" height="870" alt="image" src="https://github.com/user-attachments/assets/d8486378-2278-41df-8bda-4298946b0b35" />
+
+
+
