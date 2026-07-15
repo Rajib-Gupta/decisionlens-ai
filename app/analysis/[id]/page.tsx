@@ -5,6 +5,29 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { demoAnalysis } from "@/lib/demo";
 import type { DecisionAnalysis } from "@/lib/schema";
+
+type CachedAnalysis = {
+  analysis: DecisionAnalysis;
+  workspaceId?: string | null;
+};
+
+function analysisCacheKey(id: string) {
+  return `decisionlens:analysis:${id}`;
+}
+
+function readCachedAnalysis(id: string): CachedAnalysis | null {
+  try {
+    const raw = localStorage.getItem(analysisCacheKey(id));
+    return raw ? (JSON.parse(raw) as CachedAnalysis) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedAnalysis(id: string, value: CachedAnalysis) {
+  localStorage.setItem(analysisCacheKey(id), JSON.stringify(value));
+}
+
 const stages = [
   "Understanding your decision…",
   "Identifying missing assumptions…",
@@ -32,9 +55,19 @@ export default function Analysis() {
         }),
       420,
     );
+
+    const cached = readCachedAnalysis(id);
+    if (cached?.analysis) {
+      setData(cached.analysis);
+      setWorkspaceId(cached.workspaceId ?? null);
+      setStep(stages.length - 1);
+      return () => clearInterval(timer);
+    }
+
     const raw = localStorage.getItem(`decisionlens:${id}`);
     if (!raw) {
       setData(demoAnalysis);
+      setStep(stages.length - 1);
       return;
     }
     fetch("/api/decisions/analyze", {
@@ -46,13 +79,25 @@ export default function Analysis() {
       .then(async (x) => {
         const analysis = x.analysis || demoAnalysis;
         setData(analysis);
+        setStep(stages.length - 1);
+        let savedWorkspaceId: string | null = null;
         try {
           const saved = await fetch("/api/briefs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ input: JSON.parse(raw), analysis }) });
           const payload = await saved.json();
-          if (saved.ok) setWorkspaceId(payload.brief.id);
+          if (saved.ok) {
+            savedWorkspaceId = payload.brief.id;
+            setWorkspaceId(payload.brief.id);
+          }
         } catch { /* Anonymous demo remains usable if persistence is not configured. */ }
+        writeCachedAnalysis(id, {
+          analysis,
+          workspaceId: savedWorkspaceId,
+        });
       })
-      .catch(() => setData(demoAnalysis));
+      .catch(() => {
+        setData(demoAnalysis);
+        setStep(stages.length - 1);
+      });
     return () => clearInterval(timer);
   }, [id]);
   if (!data || step < stages.length - 1)

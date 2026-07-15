@@ -5,6 +5,7 @@ import { getDb } from "./db";
 import type { DecisionAnalysis, DecisionInput } from "./schema";
 import { randomUUID } from "crypto";
 import type { DecisionStatus } from "./status";
+import { DEMO_ANALYSIS_TITLE } from "./demo";
 
 export type EvidenceItem = {
   id: string;
@@ -105,15 +106,26 @@ export async function decisions() {
 export function publicDecision(d: DecisionRecord) {
   return { ...d, id: d._id.toHexString(), _id: undefined };
 }
+
+export function resolveDecisionTitle(
+  decision: string,
+  analysisTitle?: string,
+) {
+  const fallback =
+    decision.slice(0, 72) + (decision.length > 72 ? "…" : "");
+  const candidate = analysisTitle?.trim();
+  if (!candidate) return fallback;
+  if (candidate === DEMO_ANALYSIS_TITLE) return fallback;
+  return candidate;
+}
+
 export function newRecord(
   input: DecisionInput,
   ownerId: string,
   analysis?: DecisionAnalysis,
 ): Omit<DecisionRecord, "_id"> {
   const now = new Date();
-  const title =
-    analysis?.title ||
-    input.decision.slice(0, 72) + (input.decision.length > 72 ? "…" : "");
+  const title = resolveDecisionTitle(input.decision, analysis?.title);
   return {
     ownerId,
     title,

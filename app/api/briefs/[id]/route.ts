@@ -9,6 +9,9 @@ import {
 } from "@/lib/decision-store";
 import { patchDecisionSchema } from "@/lib/workspace-schema";
 import { randomUUID } from "crypto";
+
+export const dynamic = "force-dynamic";
+
 async function owned(id: string) {
   if (!ObjectId.isValid(id)) return null;
   const ownerId = await ownerFromRequest();
@@ -67,6 +70,7 @@ export async function PATCH(
     const patch = patchDecisionSchema.parse(await request.json());
     const now = new Date();
     const update: Record<string, unknown> = { $set: { updatedAt: now } };
+    let arrayFilters: { "item.id": string }[] | undefined;
     const events = [] as ReturnType<typeof activity>[];
     if (patch.status) {
       update.$set = { ...(update.$set as object), status: patch.status };
@@ -106,7 +110,7 @@ export async function PATCH(
         ...(update.$set as object),
         "actions.$[item].status": "Completed",
       };
-      update.arrayFilters = [{ "item.id": patch.actionId }];
+      arrayFilters = [{ "item.id": patch.actionId }];
       events.push(activity("action", "Marked action complete"));
     }
     if (patch.outcome) {
@@ -126,6 +130,7 @@ export async function PATCH(
     await hit.col.updateOne(
       { _id: hit.record._id, ownerId: hit.ownerId },
       update,
+      arrayFilters ? { arrayFilters } : undefined,
     );
     const fresh = await hit.col.findOne({
       _id: hit.record._id,

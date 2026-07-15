@@ -255,11 +255,14 @@ export default function Workspace() {
   );
 }
 function List({ items }: { items: string[] }) {
+  const seen = new Map<string, number>();
   return (
     <ul>
-      {items.map((x) => (
-        <li key={x}>{x}</li>
-      ))}
+      {items.map((x) => {
+        const count = (seen.get(x) ?? 0) + 1;
+        seen.set(x, count);
+        return <li key={`${x}__${count}`}>{x}</li>;
+      })}
     </ul>
   );
 }

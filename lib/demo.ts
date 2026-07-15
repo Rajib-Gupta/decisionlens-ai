@@ -1,6 +1,7 @@
 import type { DecisionAnalysis } from "./schema";
+export const DEMO_ANALYSIS_TITLE = "Join the early-stage startup?";
 export const demoAnalysis: DecisionAnalysis = {
-  title: "Join the early-stage startup?",
+  title: DEMO_ANALYSIS_TITLE,
   summary:
     "The offer has real career upside, but only if financial resilience and the company’s runway are verified before making an irreversible commitment.",
   perspectives: {
