@@ -6,6 +6,7 @@ export function Nav() {
         <span className="mark">D</span>DecisionLens AI
       </Link>
       <div className="navlinks">
+        <Link href="/compare">Compare options</Link>
         <Link href="/about">How it works</Link>
         <Link href="/history">Saved briefs</Link>
       </div>

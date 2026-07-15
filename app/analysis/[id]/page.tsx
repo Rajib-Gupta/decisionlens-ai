@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { demoAnalysis } from "@/lib/demo";
 import type { DecisionAnalysis } from "@/lib/schema";
@@ -18,6 +19,7 @@ export default function Analysis() {
   const { id } = useParams<{ id: string }>();
   const [step, setStep] = useState(0);
   const [data, setData] = useState<DecisionAnalysis | null>(null);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   useEffect(() => {
     const timer = setInterval(
       () =>
@@ -41,7 +43,15 @@ export default function Analysis() {
       body: raw,
     })
       .then((r) => r.json())
-      .then((x) => setData(x.analysis || demoAnalysis))
+      .then(async (x) => {
+        const analysis = x.analysis || demoAnalysis;
+        setData(analysis);
+        try {
+          const saved = await fetch("/api/briefs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ input: JSON.parse(raw), analysis }) });
+          const payload = await saved.json();
+          if (saved.ok) setWorkspaceId(payload.brief.id);
+        } catch { /* Anonymous demo remains usable if persistence is not configured. */ }
+      })
       .catch(() => setData(demoAnalysis));
     return () => clearInterval(timer);
   }, [id]);
@@ -74,11 +84,11 @@ export default function Analysis() {
   return (
     <>
       <Nav />
-      <Report data={data} />
+      <Report data={data} workspaceId={workspaceId} />
     </>
   );
 }
-function Report({ data: d }: { data: DecisionAnalysis }) {
+function Report({ data: d, workspaceId }: { data: DecisionAnalysis; workspaceId:string|null }) {
   const p = d.perspectives;
   return (
     <main className="shell report">
@@ -89,6 +99,7 @@ function Report({ data: d }: { data: DecisionAnalysis }) {
           </span>
           <h1>{d.title}</h1>
           <span className="pill">{d.recommendation.verdict}</span>
+          {workspaceId && <Link className="button" style={{marginLeft:12}} href={`/decisions/${workspaceId}`}>Open workspace</Link>}
         </div>
         <div>
           <div className="score">
