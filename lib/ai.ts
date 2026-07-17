@@ -51,7 +51,7 @@ async function requestAnalysis(
     .join("\n\n");
 
   const response = await client.responses.create({
-    model: "gpt-4.1-mini",
+    model: "gpt-5.6-terra",
     instructions: instruction,
     input: modelInput,
     text: { format: { type: "json_object" } },
